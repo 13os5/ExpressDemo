@@ -34,7 +34,12 @@ router.get('/findByID/:id', (req: Request, res: Response) => {
             res.json(data);
         });
 });
-
+router.delete('/:id', (req: Request, res: Response) => {
+    let id = new ObjectID(req.params.id);
+    mongodb.collection("user").deleteOne({ _id: id }).then((data) => {
+        res.json(data);
+    });
+});
 router.post('/', (req: Request, res: Response) => {
     let data = req.body;
     mongodb.collection("user").insertOne(data).then((data) => {
@@ -66,12 +71,7 @@ router.post('/search', (req: Request, res: Response) => {
         });
 });
 
-router.delete('/:id', (req: Request, res: Response) => {
-    let id = new ObjectID(req.params.id);
-    mongodb.collection("user").deleteOne({ _id: id }).then((data) => {
-        res.json(data);
-    });
-});
+
 
 //put
 router.put('/:id', (req: Request, res: Response) => {

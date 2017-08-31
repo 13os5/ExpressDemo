@@ -7,23 +7,24 @@ import * as async from 'async';
 import * as multer from 'multer';
 import * as shortid from 'shortid';
 import * as fs from 'fs';
-//var fs = require('fs');
+var mailer = require("nodemailer");
 
 let config: any = myConfig.get('Config');
-
 const router: Router = Router();
+//router.use(auth.authenticate());
 
-router.use(auth.authenticate());
-
+var smtpTransport = mailer.createTransport(config.smtp);
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
         let folder = config.uploadPathAttach + req.params.folderName;
-        if (fs.existsSync(folder)) {
+        console.log(folder);
+        if (!fs.existsSync(folder)) {
             fs.mkdirSync(folder);
         }
         cb(null, folder);
     },
     filename: function (req, file, cb) {
+        console.log(file);
         cb(null, file.originalname);
     }
 })
@@ -47,7 +48,23 @@ router.post('/', (req: Request, res: Response) => {
     let data = req.body;
     data.issueno = shortid.generate();
     mongodb.collection("issue").insertOne(data).then((data) => {
-        res.json(data);
+        var mail = {
+            to: 'to@email.com',
+            subject: `Your issue no ${data.issueno}`,
+            html: `
+                <h4>Your issue no ${data.issueno}</h4>
+                <b>Thank you</b>
+            `
+        }
+        smtpTransport.sendMail(mail, function (error, response) {
+            smtpTransport.close();
+            if (error) {
+                res.json(error);
+            } else {
+                res.json(data);
+            }
+        });
+        
     });
 });
 
@@ -152,11 +169,42 @@ router.post('/attach/:folderName', upload.single('attach'), (req: Request, res: 
         success: true
     });
 });
+
 //get file
 router.get('/attach/:folderName', (req: Request, res: Response) => {
     let folder = config.uploadPathAttach + req.params.folderName;
-    fs.readdir(folder, (err, files) => {
-        res.json(files);
+    if (fs.existsSync(folder)) {
+        fs.readdir(folder, (err, files) => {
+            res.json(files);
+        });
+    } else {
+        res.json([]);
+    }
+
+});
+router.get('/view-attach/:folderName/:fileName', (req: Request, res: Response) => {
+    fs.readFile(`${config.uploadPathAttach}${req.params.folderName}/${req.params.fileName}`, (err, data) => {
+        if (!err) {
+            res.write(data);
+            res.end();
+        } else {
+            res.end();
+        }
     });
 });
+router.delete('/del-attach/:folderName/:fileName', (req: Request, res: Response) => {
+
+    fs.unlink(`${config.uploadPathAttach}${req.params.folderName}/${req.params.fileName}`, (err) => {
+
+        if (!err) {
+            res.json({
+                success: true
+            });
+        } else {
+            res.end();
+        }
+    });
+});
+
+
 export const IssueController: Router = router;

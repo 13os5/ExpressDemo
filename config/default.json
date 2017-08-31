@@ -7,8 +7,17 @@
             }
         },
         "mongodbUrl": "mongodb://localhost:27017/issuedb",
-        "uploadPath":"D:/Train_AungularJS/FileUpload/",
-        "uploadPathAttach":"D:/Train_AungularJS/FileUpload/",
-        "IssueFileUpload":"D:/Train_AungularJS/IssueFileUpload/"
+        "uploadPath": "D:/Train_AungularJS/FileUpload/",
+        "uploadPathAttach": "D:/Train_AungularJS/uploadPathAttach/",
+        "IssueFileUpload": "D:/Train_AungularJS/IssueFileUpload/",
+        "smtp": {
+            "host": "smpt.gmail.com",
+            "port": 465,
+            "secure": true, // use SSL
+            "auth": {
+                "user": "www.saleagent@gamil.com",
+                "pass": "www.saleagent1234"
+            }
+        }
     }
 }

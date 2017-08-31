@@ -30,6 +30,12 @@ router.get('/findByID/:id', function (req, res) {
         res.json(data);
     });
 });
+router.delete('/:id', function (req, res) {
+    var id = new mongodb_1.ObjectID(req.params.id);
+    mongodb_2.mongodb.collection("user").deleteOne({ _id: id }).then(function (data) {
+        res.json(data);
+    });
+});
 router.post('/', function (req, res) {
     var data = req.body;
     mongodb_2.mongodb.collection("user").insertOne(data).then(function (data) {
@@ -55,12 +61,6 @@ router.post('/search', function (req, res) {
             ret.total = num;
             res.json(ret);
         });
-    });
-});
-router.delete('/:id', function (req, res) {
-    var id = new mongodb_1.ObjectID(req.params.id);
-    mongodb_2.mongodb.collection("user").deleteOne({ _id: id }).then(function (data) {
-        res.json(data);
     });
 });
 //put
