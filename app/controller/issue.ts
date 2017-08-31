@@ -4,38 +4,56 @@ import * as myConfig from 'config';
 import { mongodb } from '../helpers/mongodb';
 import * as auth from '../helpers/auth';
 import * as async from 'async';
+import * as multer from 'multer';
+import * as shortid from 'shortid';
+import * as fs from 'fs';
+//var fs = require('fs');
 
 let config: any = myConfig.get('Config');
 
 const router: Router = Router();
 
-// router.use(auth.authenticate());
+router.use(auth.authenticate());
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        let folder = config.uploadPathAttach + req.params.folderName;
+        if (fs.existsSync(folder)) {
+            fs.mkdirSync(folder);
+        }
+        cb(null, folder);
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+})
+
+var upload = multer({ storage: storage });
 
 router.get('/', (req: Request, res: Response) => {
-    mongodb.collection("company").find().toArray().then((data) => {
+    mongodb.collection("issue").find().toArray().then((data) => {
         res.json(data);
     });
 });
 
 router.get('/findById/:id', (req: Request, res: Response) => {
     let id = new ObjectID(req.params.id);
-    mongodb.collection("company").findOne({ _id: id })
-        .then((data) => {
-            res.json(data);
-        }
-        );
+    mongodb.collection("issue").findOne({ _id: id }).then((data) => {
+        res.json(data);
+    });
 });
 
 router.post('/', (req: Request, res: Response) => {
     let data = req.body;
-    mongodb.collection("company").insertOne(data).then((data) => {
+    data.issueno = shortid.generate();
+    mongodb.collection("issue").insertOne(data).then((data) => {
         res.json(data);
     });
 });
 
 router.delete('/:id', (req: Request, res: Response) => {
     let id = new ObjectID(req.params.id);
-    mongodb.collection("company").deleteOne({ _id: id }).then((data) => {
+    mongodb.collection("issue").deleteOne({ _id: id }).then((data) => {
         res.json(data);
     });
 });
@@ -43,7 +61,7 @@ router.delete('/:id', (req: Request, res: Response) => {
 router.put('/:id', (req: Request, res: Response) => {
     let id = new ObjectID(req.params.id);
     let data = req.body;
-    mongodb.collection("company").updateOne({ _id: id }, data).then((data) => {
+    mongodb.collection("issue").updateOne({ _id: id }, data).then((data) => {
         res.json(data);
     });
 });
@@ -54,7 +72,7 @@ router.post('/search', (req: Request, res: Response) => {
         total: 0
     };
     let data = req.body;
-    mongodb.collection("company").find(
+    mongodb.collection("issue").find(
         {
             compName: new RegExp(`${data.searchText}`)
         }
@@ -62,7 +80,7 @@ router.post('/search', (req: Request, res: Response) => {
         .limit(data.rowPerPage)
         .toArray().then((rows) => {
             ret.rows = rows;
-            mongodb.collection("company").find(
+            mongodb.collection("issue").find(
                 {
                     compName: new RegExp(`${data.searchText}`)
                 }
@@ -81,7 +99,7 @@ router.post('/find', (req: Request, res: Response) => {
     let data = req.body;
     async.parallel([
         function (callback) {
-            mongodb.collection("company").find(
+            mongodb.collection("issue").find(
                 {
                     compName: new RegExp(`${data.searchText}`)
                 }
@@ -92,7 +110,7 @@ router.post('/find', (req: Request, res: Response) => {
                 });
         },
         function (callback) {
-            mongodb.collection("company").find(
+            mongodb.collection("issue").find(
                 {
                     compName: new RegExp(`${data.searchText}`)
                 }
@@ -110,5 +128,35 @@ router.post('/find', (req: Request, res: Response) => {
             res.json(ret);
         });
 });
+router.post('/profile/:id', upload.single('avatar'), (req: Request, res: Response) => {
+    console.log(req.body);
+    res.json({
+        success: true
+    });
+});
 
-export const CompanyController: Router = router;
+router.get('/profile/:id', (req: Request, res: Response) => {
+    fs.readFile(`${config.IssueFileUpload}/${req.params.id}`, (err, data) => {
+        if (!err) {
+            res.write(data);
+            res.end();
+        } else {
+            res.end();
+        }
+    });
+});
+
+//upload file
+router.post('/attach/:folderName', upload.single('attach'), (req: Request, res: Response) => {
+    res.json({
+        success: true
+    });
+});
+//get file
+router.get('/attach/:folderName', (req: Request, res: Response) => {
+    let folder = config.uploadPathAttach + req.params.folderName;
+    fs.readdir(folder, (err, files) => {
+        res.json(files);
+    });
+});
+export const IssueController: Router = router;

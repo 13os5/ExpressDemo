@@ -1,0 +1,14 @@
+{
+    "Config": {
+        "auth": {
+            "jwtSecret": "MyS3cr3tK3Y",
+            "jwtSession": {
+                "session": false
+            }
+        },
+        "mongodbUrl": "mongodb://localhost:27017/issuedb",
+        "uploadPath":"D:/Train_AungularJS/FileUpload/",
+        "uploadPathAttach":"D:/Train_AungularJS/FileUpload/",
+        "IssueFileUpload":"D:/Train_AungularJS/IssueFileUpload/"
+    }
+}

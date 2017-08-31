@@ -83,4 +83,4 @@ mongodb_1.MongoClient.connect("mongodb://localhost:27017/issuedb", function (err
     }
 });
 exports.CustomerController = router;
-//# sourceMappingURL=D:/Train JS/IssueAPI/controller/customer.js.map
+//# sourceMappingURL=D:/Train_AungularJS/IssueAPI/controller/customer.js.map
