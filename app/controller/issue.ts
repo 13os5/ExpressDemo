@@ -47,9 +47,9 @@ router.get('/findById/:id', (req: Request, res: Response) => {
 router.post('/', (req: Request, res: Response) => {
     let data = req.body;
     data.issueno = shortid.generate();
-    mongodb.collection("issue").insertOne(data).then((data) => {
+    mongodb.collection("issue").insertOne(data).then((datas) => {
         var mail = {
-            to: 'to@email.com',
+            to: 'fai_naha@hotmail.com',
             subject: `Your issue no ${data.issueno}`,
             html: `
                 <h4>Your issue no ${data.issueno}</h4>
@@ -61,10 +61,9 @@ router.post('/', (req: Request, res: Response) => {
             if (error) {
                 res.json(error);
             } else {
-                res.json(data);
+                res.json(datas);
             }
         });
-        
     });
 });
 

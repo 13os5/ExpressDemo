@@ -11,11 +11,11 @@
         "uploadPathAttach": "D:/Train_AungularJS/uploadPathAttach/",
         "IssueFileUpload": "D:/Train_AungularJS/IssueFileUpload/",
         "smtp": {
-            "host": "smpt.gmail.com",
+            "host": "smtp.gmail.com",
             "port": 465,
             "secure": true, // use SSL
             "auth": {
-                "user": "www.saleagent@gamil.com",
+                "user": "www.saleagent@gmail.com",
                 "pass": "www.saleagent1234"
             }
         }
